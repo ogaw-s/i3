@@ -10,6 +10,7 @@
 
 extern int sock;
 extern sox_format_t *in, *out;
+extern int muted;
 
 void *send_audio(void *arg) {
     sox_sample_t *read_buf = malloc(BUFFER_SAMPLE_SIZE * sizeof(sox_sample_t));
@@ -25,7 +26,7 @@ void *send_audio(void *arg) {
     while ((samples = sox_read(in, read_buf, BUFFER_SAMPLE_SIZE)) > 0) {
         for (size_t i = 0; i < samples; ++i) {
             sample = read_buf[i] >> 16;
-            if (abs(sample) < 5000) {
+            if (muted) {
                 send_buf[i] = 0;
             }else {
                 send_buf[i] = sample;
