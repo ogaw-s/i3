@@ -26,7 +26,10 @@ int main(int argc, char *argv[]) {
     const char *ip = is_server ? NULL : argv[2];
 
     sock = setup_socket(is_server, ip, port);
+    sock1 = setup_socket(is_server, ip, port + 1)
+
     if (sock < 0) return 1;
+    if (sock1 < 0) return 1;
 
     sox_init();
 
