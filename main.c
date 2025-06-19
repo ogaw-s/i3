@@ -13,6 +13,7 @@
 
 int sock;
 sox_format_t *in, *out;
+int muted = 0; // ミュートするかどうかの変数
 
 int main(int argc, char *argv[]) {
     if (argc != 3 && argc != 4) {
@@ -22,6 +23,7 @@ int main(int argc, char *argv[]) {
 
     int is_server = strcmp(argv[1], "server") == 0;
     int port = atoi(argv[is_server ? 2 : 3]);
+
     const char *ip = is_server ? NULL : argv[2];
 
     sock = setup_socket(is_server, ip, port);

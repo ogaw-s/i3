@@ -8,4 +8,7 @@
 // 32bit sox_sample_t 用ゲート（再生時に使う）
 void apply_gate(sox_sample_t *buf, size_t samples, sox_sample_t threshold);
 
+int if_muted(sox_sample_t *buf, size_t samples, sox_sample_t threshold);
+
+
 #endif
