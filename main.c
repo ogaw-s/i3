@@ -14,6 +14,7 @@
 
 int sock;
 int sock1;
+int muted;
 sox_format_t *in, *out;
 
 int main(int argc, char *argv[]) {
