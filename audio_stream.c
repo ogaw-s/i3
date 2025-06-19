@@ -5,16 +5,23 @@
 #include <sox.h>
 #include <unistd.h>
 #include <sys/socket.h>
-
+#include "audio_effects.h"
 #define BUFFER_SAMPLE_SIZE 2048
 
 extern int sock;
 extern sox_format_t *in, *out;
 
+#include "audio_effects.h"
+
+typedef struct {
+    int apply_lpf;  // 1ならLPFをかける、0ならかけない
+} audio_send_params_t;
+
 void *send_audio(void *arg) {
-    //音声の送信
-    sox_sample_t *read_buf = malloc(BUFFER_SAMPLE_SIZE * sizeof(sox_sample_t)); // libsoxの音声サンプル方 32bit
-    int16_t *send_buf = malloc(BUFFER_SAMPLE_SIZE * sizeof(int16_t)); //16bitに変換して送る
+    audio_send_params_t *params = (audio_send_params_t *)arg;
+
+    sox_sample_t *read_buf = malloc(BUFFER_SAMPLE_SIZE * sizeof(sox_sample_t));
+    int16_t *send_buf = malloc(BUFFER_SAMPLE_SIZE * sizeof(int16_t));
     size_t samples;
 
     if (!read_buf || !send_buf) {
@@ -22,17 +29,16 @@ void *send_audio(void *arg) {
         exit(1);
     }
 
-    sox_sample_t sample;
-    //sox_readで音声をbufferに書き込み
     while ((samples = sox_read(in, read_buf, BUFFER_SAMPLE_SIZE)) > 0) {
-        for (size_t i = 0; i < samples; ++i) {
-            sample = read_buf[i] >> 16;
-            if (abs(sample) < 5000) {
-                send_buf[i] = 0;
-            }else {
-                send_buf[i] = sample;
-            }
+        if (params && params->apply_lpf) {
+            apply_lpf(read_buf, samples, 3000.0, &in->signal); // 3kHzカットオフ例
         }
+
+        for (size_t i = 0; i < samples; ++i) {
+            sox_sample_t sample = read_buf[i] >> 16;
+            send_buf[i] = (abs(sample) < 5000) ? 0 : sample;
+        }
+
         ssize_t bytes = samples * sizeof(int16_t);
         if (send(sock, send_buf, bytes, 0) <= 0)
             break;
@@ -42,6 +48,7 @@ void *send_audio(void *arg) {
     free(send_buf);
     return NULL;
 }
+
 
 void *recv_audio(void *arg) {
     // 音声の受信

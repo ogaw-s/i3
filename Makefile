@@ -4,7 +4,7 @@ LDFLAGS = -lsox
 
 BIN_DIR = bin
 
-SRCS = main.c audio_stream.c tcp_stream.c
+SRCS = main.c audio_stream.c tcp_stream.c audio_effects.c
 OBJS = $(SRCS:%.c=$(BIN_DIR)/%.o)
 TARGET = $(BIN_DIR)/voicechat
 
