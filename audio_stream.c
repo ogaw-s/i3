@@ -1,10 +1,12 @@
-#include "audio_stream.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <sox.h>
 #include <unistd.h>
 #include <sys/socket.h>
+
+#include "audio_effects.h"
+#include "audio_stream.h"
 
 #define BUFFER_SAMPLE_SIZE 2048
 
@@ -57,15 +59,14 @@ void *recv_audio(void *arg) {
         size_t samples = n / sizeof(int16_t);
         if (samples == 0) continue;
 
-        //printf("recv: %zd samples received\n", samples);
-
         // int16_t → sox_sample_t (32bit) へ変換
         for (size_t i = 0; i < samples; ++i) {
             sox_buf[i] = (recv_buf[i] << 16) / 2;
         }
 
+        // ↓↓↓ ゲート処理追加（しきい値 = 5000 << 16）
+        apply_gate(sox_buf, samples, 5000 << 16);
 
-        // 受信ごとに即座に再生（underrun防止）
         if (sox_write(out, sox_buf, samples) != samples) {
             fprintf(stderr, "sox_write failed\n");
             break;
