@@ -27,17 +27,13 @@ int main(int argc, char *argv[]) {
     int port = atoi(argv[is_server ? 2 : 3]);
     const char *ip = is_server ? NULL : argv[2];
 
-    sock = setup_socket(is_server, ip, port);
-    if (sock < 0) return 1;
+    sock1 = setup_socket(is_server, ip, port);
+    if (sock1 < 0) return 1;
 
     // 少し待ってから次の接続を試みる
     usleep(200000); // 0.2秒待つ（調整可能）
-    sock1 = setup_socket(is_server, ip, port + 1);
-    if (sock1 < 0) return 1;
-
-
-    if (sock < 0) return 1;
-    if (sock1 < 0) return 1;
+    sock2 = setup_socket(is_server, ip, port + 1);
+    if (sock2 < 0) return 1;
 
     sox_init();
 
