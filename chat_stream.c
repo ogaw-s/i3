@@ -10,10 +10,10 @@
 #define CHAT_BUF 2048
 
 extern int sock1;
+extern muted;
 extern sox_format_t *in, *out;
 
 void *send_chat(void *arg) {
-    int muted;
     char msg[CHAT_BUF];
     while (fgets(msg, sizeof(msg), stdin)) {
         if (strncmp(msg, "/m", 2) == 0) {
