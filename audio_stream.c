@@ -61,7 +61,7 @@ void *recv_audio(void *arg) {
         recv_buf_sample_num += samples;
         if (samples == 0) continue;
 
-        if (recv_buf_sample_num >= 8800 * 5){
+        if ((recv_buf_sample_num >= 8800 * 5) && (!muted)){
             for (size_t i = 0; i < samples; ++i)
             sox_buf[i] = recv_buf[i] << 16;
         }
