@@ -43,8 +43,12 @@ int main(int argc, char *argv[]) {
     out = sox_open_write("default", &signal, NULL, "alsa", NULL, NULL);
     if (!out) { fprintf(stderr, "Failed to open speaker output\n"); return 1; }
 
+
+    audio_effect_parameters send_params;
+    send_params.apply_lpf = 1; //LPFをかけるかどうか
+
     pthread_t send_thread, recv_thread;
-    pthread_create(&send_thread, NULL, send_audio, NULL);
+    pthread_create(&send_thread, NULL, send_audio, (void *)&send_params);
     pthread_create(&recv_thread, NULL, recv_audio, NULL);
 
     pthread_join(send_thread, NULL);
