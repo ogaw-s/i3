@@ -28,11 +28,7 @@ void *send_audio(void *arg) {
         //printf("send: %zu samples\n", samples);
         for (size_t i = 0; i < samples; ++i) {
             sample = read_buf[i] >> 16;
-            if (abs(sample) < 5000) {
-                send_buf[i] = 0;
-            }else {
-                send_buf[i] = sample;
-            }
+            send_buf[i] = sample;
         }
         ssize_t bytes = samples * sizeof(int16_t);
         if (send(sock, send_buf, bytes, 0) <= 0)
