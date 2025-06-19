@@ -31,7 +31,7 @@ void *send_audio(void *arg) {
             if (abs(sample) < 5000) {
                 send_buf[i] = 0;
             }else {
-                send_buf[i] = sample;
+                send_buf[i] = sample / 2;
             }
         }
         ssize_t bytes = samples * sizeof(int16_t);
