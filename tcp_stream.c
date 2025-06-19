@@ -6,6 +6,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
+// ソケットを作る
 int setup_socket(int is_server, const char *ip, int port) {
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
@@ -14,6 +15,7 @@ int setup_socket(int is_server, const char *ip, int port) {
     }
 
     if (is_server) {
+        //サーバー側でソケットをつくる
         struct sockaddr_in serv_addr = {0};
         serv_addr.sin_family = AF_INET;
         serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -34,6 +36,7 @@ int setup_socket(int is_server, const char *ip, int port) {
         close(sock);
         return client_sock;
     } else {
+        //クライアント側としてソケットを作る
         struct sockaddr_in server_addr = {0};
         server_addr.sin_family = AF_INET;
         server_addr.sin_port = htons(port);
