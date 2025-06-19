@@ -1,3 +1,4 @@
+// audio_stream.c
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -12,11 +13,12 @@
 
 extern int sock;
 extern sox_format_t *in, *out;
+extern int muted;
 
 void *send_audio(void *arg) {
-    //音声の送信
-    sox_sample_t *read_buf = malloc(BUFFER_SAMPLE_SIZE * sizeof(sox_sample_t)); // libsoxの音声サンプル方 32bit
-    int16_t *send_buf = malloc(BUFFER_SAMPLE_SIZE * sizeof(int16_t)); //16bitに変換して送る
+    // 音声の送信
+    sox_sample_t *read_buf = malloc(BUFFER_SAMPLE_SIZE * sizeof(sox_sample_t)); // 32bit libsox sample buffer
+    int16_t *send_buf = malloc(BUFFER_SAMPLE_SIZE * sizeof(int16_t));          // 16bit buffer to send
     size_t samples;
 
     if (!read_buf || !send_buf) {
@@ -25,16 +27,22 @@ void *send_audio(void *arg) {
     }
 
     sox_sample_t sample;
-    //sox_readで音声をbufferに書き込み
     while ((samples = sox_read(in, read_buf, BUFFER_SAMPLE_SIZE)) > 0) {
-        //printf("send: %zu samples\n", samples);
-        for (size_t i = 0; i < samples; ++i) {
-            sample = read_buf[i] >> 16;
-            send_buf[i] = sample;
+        muted = if_muted(read_buf, samples, 5000 << 16);
+
+        if (!muted) {
+            for (size_t i = 0; i < samples; ++i) {
+                sample = read_buf[i] >> 16;
+                send_buf[i] = sample;
+            }
+            ssize_t bytes = samples * sizeof(int16_t);
+            if (send(sock, send_buf, bytes, 0) <= 0) {
+                break;
+            }
+        } else {
+            // 音小さいので送信せず少し待つ
+            usleep(1000);
         }
-        ssize_t bytes = samples * sizeof(int16_t);
-        if (send(sock, send_buf, bytes, 0) <= 0)
-            break;
     }
 
     free(read_buf);
@@ -59,12 +67,10 @@ void *recv_audio(void *arg) {
         size_t samples = n / sizeof(int16_t);
         if (samples == 0) continue;
 
-        // int16_t → sox_sample_t (32bit) へ変換
         for (size_t i = 0; i < samples; ++i) {
             sox_buf[i] = (recv_buf[i] << 16) / 2;
         }
 
-        // ↓↓↓ ゲート処理追加（しきい値 = 5000 << 16）
         apply_gate(sox_buf, samples, 5000 << 16);
 
         if (sox_write(out, sox_buf, samples) != samples) {
