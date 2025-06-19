@@ -1,15 +1,24 @@
 CC = gcc
 CFLAGS = -Wall -pthread -I/usr/include
 LDFLAGS = -lsox
-OBJS = main.o audio_stream.o tcp_stream.o
 
-all: voicechat
+BIN_DIR = bin
 
-voicechat: $(OBJS)
-	$(CC) -o $@ $(OBJS) $(LDFLAGS)
+SRCS = main.c audio_stream.c tcp_stream.c
+OBJS = $(SRCS:%.c=$(BIN_DIR)/%.o)
+TARGET = $(BIN_DIR)/voicechat
 
-%.o: %.c
-	$(CC) $(CFLAGS) -c $<
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	@mkdir -p $(BIN_DIR)
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+$(BIN_DIR)/%.o: %.c
+	@mkdir -p $(BIN_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o voicechat
+	rm -rf $(BIN_DIR)
+
+.PHONY: all clean
