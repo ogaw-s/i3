@@ -25,6 +25,7 @@ void *send_audio(void *arg) {
     sox_sample_t sample;
     //sox_readで音声をbufferに書き込み
     while ((samples = sox_read(in, read_buf, BUFFER_SAMPLE_SIZE)) > 0) {
+        printf("send: %zu samples\n", samples);
         for (size_t i = 0; i < samples; ++i) {
             sample = read_buf[i] >> 16;
             if (abs(sample) < 5000) {
@@ -59,6 +60,8 @@ void *recv_audio(void *arg) {
 
         size_t samples = n / sizeof(int16_t);
         if (samples == 0) continue;
+
+        printf("recv: %zd samples received\n", samples);
 
         // int16_t → sox_sample_t (32bit) へ変換
         for (size_t i = 0; i < samples; ++i) {
