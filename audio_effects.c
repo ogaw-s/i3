@@ -1,4 +1,3 @@
-// audio_effects.c
 #include "audio_effects.h"
 #include <stdlib.h>
 #include <math.h>
@@ -18,4 +17,4 @@ void apply_gate(sox_sample_t *buf, size_t samples, sox_sample_t threshold) {
             buf[i] = 0;
         }
     }
-}
+
