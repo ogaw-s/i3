@@ -19,12 +19,3 @@ void apply_gate(sox_sample_t *buf, size_t samples, sox_sample_t threshold) {
         }
     }
 }
-
-int if_muted(sox_sample_t *buf, size_t samples, sox_sample_t threshold) {
-    for (size_t i = 0; i < samples; i++) {
-        if (abs(buf[i]) >= threshold) {
-            return 0;  // 音あり → ミュートしない
-        }
-    }
-    return 1;  // 音なし → ミュート（ゲートON）
-}
