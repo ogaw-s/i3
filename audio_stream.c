@@ -44,31 +44,29 @@ void *send_audio(void *arg) {
 }
 
 void *recv_audio(void *arg) {
-    // 音声の受信
-    int16_t *recv_buf = malloc(BUFFER_SAMPLE_SIZE * sizeof(int16_t)); //16bitの受信用バッファ
-    sox_sample_t *sox_buf = malloc(BUFFER_SAMPLE_SIZE * sizeof(sox_sample_t)); //再生は32bit
+    int16_t *recv_buf = malloc(BUFFER_SAMPLE_SIZE * sizeof(int16_t));
+    sox_sample_t *sox_buf = malloc(BUFFER_SAMPLE_SIZE * sizeof(sox_sample_t));
     ssize_t n;
 
     if (!recv_buf || !sox_buf) {
         perror("malloc");
         exit(1);
     }
-    
-    int recv_buf_sample_num = 0;
+
     while (1) {
         n = recv(sock, recv_buf, BUFFER_SAMPLE_SIZE * sizeof(int16_t), 0);
         if (n <= 0) break;
 
         size_t samples = n / sizeof(int16_t);
-        recv_buf_sample_num += samples;
         if (samples == 0) continue;
 
-        if (recv_buf_sample_num >= 8800 * 5){
-            for (size_t i = 0; i < samples; ++i)
+        // int16_t → sox_sample_t (32bit) へ変換
+        for (size_t i = 0; i < samples; ++i) {
             sox_buf[i] = recv_buf[i] << 16;
         }
-        // sox_writeで再生
-        if (sox_write(out, sox_buf, samples) != samples) { 
+
+        // 受信ごとに即座に再生（underrun防止）
+        if (sox_write(out, sox_buf, samples) != samples) {
             fprintf(stderr, "sox_write failed\n");
             break;
         }
