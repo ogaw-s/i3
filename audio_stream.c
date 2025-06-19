@@ -30,18 +30,13 @@ void *send_audio(void *arg) {
     while ((samples = sox_read(in, read_buf, BUFFER_SAMPLE_SIZE)) > 0) {
         muted = if_muted(read_buf, samples, 5000 << 16);
 
-        if (!muted) {
-            for (size_t i = 0; i < samples; ++i) {
-                sample = read_buf[i] >> 16;
-                send_buf[i] = sample;
-            }
-            ssize_t bytes = samples * sizeof(int16_t);
-            if (send(sock, send_buf, bytes, 0) <= 0) {
-                break;
-            }
-        } else {
-            // 音小さいので送信せず少し待つ
-            usleep(1000);
+        for (size_t i = 0; i < samples; ++i) {
+            sample = read_buf[i] >> 16;
+            send_buf[i] = sample;
+        }
+        ssize_t bytes = samples * sizeof(int16_t);
+        if (send(sock, send_buf, bytes, 0) <= 0) {
+            break;
         }
     }
 
