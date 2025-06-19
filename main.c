@@ -12,7 +12,8 @@
 #define CHANNELS 1
 #define PRECISION 16
 
-int sock,sock1;
+int sock;
+int sock1;
 sox_format_t *in, *out;
 
 int main(int argc, char *argv[]) {
