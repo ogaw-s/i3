@@ -10,7 +10,7 @@
 #define CHAT_BUF 2048
 
 extern int sock1;
-extern muted;
+extern int muted;
 extern sox_format_t *in, *out;
 
 void *send_chat(void *arg) {
