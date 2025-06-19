@@ -2,16 +2,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include <sox.h>
 #include <unistd.h>
 #include <sys/socket.h>
 
-#define CHAT_BUFF 2048
+#define CHAT_BUF 2048
 
 extern int sock;
 extern sox_format_t *in, *out;
 
 void *send_chat(void *arg) {
+    int muted;
     char msg[CHAT_BUF];
     while (fgets(msg, sizeof(msg), stdin)) {
         if (strncmp(msg, "/m", 2) == 0) {
@@ -23,7 +25,7 @@ void *send_chat(void *arg) {
         char buf[CHAT_BUF + 6];
         snprintf(buf, sizeof(buf), "CHAT:%s", msg);
 
-        ssize_t sent = write(s, buf, strlen(buf));
+        ssize_t sent = write(sock, buf, strlen(buf));
         if (sent < 0) {
             perror("send_chat: write");
             break;
@@ -33,9 +35,9 @@ void *send_chat(void *arg) {
 }
 
 void *recv_chat(void *arg) {
-    char buf[BUF_SIZE];
+    char buf[CHAT_BUF];
     ssize_t n;
-    while ((n = read(s, buf, sizeof(buf))) > 0) {
+    while ((n = read(sock, buf, sizeof(buf))) > 0) {
         if (n >= 5 && strncmp(buf, "CHAT:", 5) == 0) {
             fwrite("[CHAT] ", 1, 7, stderr);
             fwrite(buf + 5, 1, n - 5, stderr);

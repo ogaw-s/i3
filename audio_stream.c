@@ -5,21 +5,13 @@
 #include <sox.h>
 #include <unistd.h>
 #include <sys/socket.h>
-#include "audio_effects.h"
+
 #define BUFFER_SAMPLE_SIZE 2048
 
 extern int sock;
 extern sox_format_t *in, *out;
 
-#include "audio_effects.h"
-
-typedef struct {
-    int apply_lpf;  // 1ならLPFをかける、0ならかけない
-} audio_send_params_t;
-
 void *send_audio(void *arg) {
-    audio_send_params_t *params = (audio_send_params_t *)arg;
-
     sox_sample_t *read_buf = malloc(BUFFER_SAMPLE_SIZE * sizeof(sox_sample_t));
     int16_t *send_buf = malloc(BUFFER_SAMPLE_SIZE * sizeof(int16_t));
     size_t samples;
@@ -29,16 +21,16 @@ void *send_audio(void *arg) {
         exit(1);
     }
 
+    sox_sample_t sample;
     while ((samples = sox_read(in, read_buf, BUFFER_SAMPLE_SIZE)) > 0) {
-        if (params && params->apply_lpf) {
-            apply_lpf(read_buf, samples, 3000.0, &in->signal); // 3kHzカットオフ例
-        }
-
         for (size_t i = 0; i < samples; ++i) {
-            sox_sample_t sample = read_buf[i] >> 16;
-            send_buf[i] = (abs(sample) < 5000) ? 0 : sample;
+            sample = read_buf[i] >> 16;
+            if (abs(sample) < 5000) {
+                send_buf[i] = 0;
+            }else {
+                send_buf[i] = sample;
+            }
         }
-
         ssize_t bytes = samples * sizeof(int16_t);
         if (send(sock, send_buf, bytes, 0) <= 0)
             break;
@@ -49,11 +41,9 @@ void *send_audio(void *arg) {
     return NULL;
 }
 
-
 void *recv_audio(void *arg) {
-    // 音声の受信
-    int16_t *recv_buf = malloc(BUFFER_SAMPLE_SIZE * sizeof(int16_t)); //16bitの受信用バッファ
-    sox_sample_t *sox_buf = malloc(BUFFER_SAMPLE_SIZE * sizeof(sox_sample_t)); //再生は32bit
+    int16_t *recv_buf = malloc(BUFFER_SAMPLE_SIZE * sizeof(int16_t));
+    sox_sample_t *sox_buf = malloc(BUFFER_SAMPLE_SIZE * sizeof(sox_sample_t));
     ssize_t n;
 
     if (!recv_buf || !sox_buf) {
@@ -74,8 +64,8 @@ void *recv_audio(void *arg) {
             for (size_t i = 0; i < samples; ++i)
             sox_buf[i] = recv_buf[i] << 16;
         }
-        // sox_writeで再生
-        if (sox_write(out, sox_buf, samples) != samples) { 
+        
+        if (sox_write(out, sox_buf, samples) != samples) {
             fprintf(stderr, "sox_write failed\n");
             break;
         }
