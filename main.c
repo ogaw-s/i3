@@ -14,7 +14,7 @@
 
 int sock;
 int sock1;
-int muted;
+int muted = 0; // ミュートするかどうかの変数
 sox_format_t *in, *out;
 
 int main(int argc, char *argv[]) {
