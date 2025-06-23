@@ -6,8 +6,8 @@
 #include <sox.h>
 #include <unistd.h>
 #include <sys/socket.h>
-#include "audio_stream.h"
 #include "chat_stream.h"
+#include "audio_effects.h"
 
 #define CHAT_BUF 2048
 
