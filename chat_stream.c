@@ -9,7 +9,7 @@
 
 #define CHAT_BUF 2048
 
-extern int sock1;
+extern int sock2;
 extern int muted;
 extern sox_format_t *in, *out;
 
@@ -25,7 +25,7 @@ void *send_chat(void *arg) {
         char buf[CHAT_BUF + 6];
         snprintf(buf, sizeof(buf), "CHAT:%s", msg);
 
-        ssize_t sent = write(sock1, buf, strlen(buf));
+        ssize_t sent = write(sock2, buf, strlen(buf));
         if (sent < 0) {
             perror("send_chat: write");
             break;
@@ -37,7 +37,7 @@ void *send_chat(void *arg) {
 void *recv_chat(void *arg) {
     char buf[CHAT_BUF];
     ssize_t n;
-    while ((n = read(sock1, buf, sizeof(buf))) > 0) {
+    while ((n = read(sock2, buf, sizeof(buf))) > 0) {
         if (n >= 5 && strncmp(buf, "CHAT:", 5) == 0) {
             fwrite("[CHAT] ", 1, 7, stderr);
             fwrite(buf + 5, 1, n - 5, stderr);
