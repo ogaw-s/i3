@@ -11,6 +11,8 @@
 #define SAMPLE_RATE 44100
 #define CHANNELS 1
 #define PRECISION 16
+#define ALSA_BUFFER_TIME_US 500000
+#define ALSA_PERIOD_TIME_US 100000 
 
 int sock1; // 音声
 int sock2; // チャット

@@ -7,7 +7,7 @@
 #include <math.h>
 #include <stdio.h>
 
-#define BUFFER_SAMPLE_SIZE 2048
+#define BUFFER_SAMPLE_SIZE 4096
 
 extern int sock1;          /* 送信用ソケット  : send_audio() と共有 */
 extern int muted;          /* /m で切り替えているフラグ            */
@@ -67,8 +67,6 @@ void send_audio_file(const char *filename)
             perror("send_audio_file: send");
             break;
         }
-        // ちょっと待つ
-        usleep(frame_usec);
     }
 
 cleanup:
