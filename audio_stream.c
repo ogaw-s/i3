@@ -12,7 +12,7 @@
 
 extern int sock1;
 extern sox_format_t *in, *out;
-extern int muted;
+extern int muted_mine;
 
 void *send_audio(void *arg) {
     // 音声の送信
@@ -27,7 +27,7 @@ void *send_audio(void *arg) {
 
     sox_sample_t sample;
     while ((samples = sox_read(in, read_buf, BUFFER_SAMPLE_SIZE)) > 0) {
-        if (!muted){
+        if (!muted_mine){
             for (size_t i = 0; i < samples; ++i) {
                 sample = read_buf[i] >> 16;
                 send_buf[i] = sample;

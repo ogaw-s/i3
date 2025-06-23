@@ -6,49 +6,44 @@
 #include <sox.h>
 #include <unistd.h>
 #include <sys/socket.h>
-
 #define CHAT_BUF 2048
 
 extern int sock2;
-extern int muted;
+extern int muted_mine;
+extern int muted_partner;
+extern char message_mine[CHAT_BUF];
+extern char message_partner[CHAT_BUF];
+extern int send_flag;
+extern int recv_flag;
 extern sox_format_t *in, *out;
 
 void *send_chat(void *arg) {
-    char msg[CHAT_BUF];
-    while (fgets(msg, sizeof(msg), stdin)) {
-        if (strncmp(msg, "/m", 2) == 0) {
-            muted = !muted;
-            fprintf(stderr, "[ミュート %s]\n", muted ? "ON" : "OFF");
-            continue;
-        }
-
-        char buf[CHAT_BUF + 6];
-        snprintf(buf, sizeof(buf), "CHAT:%s", msg);
-
-        ssize_t sent = write(sock2, buf, strlen(buf));
-        if (sent < 0) {
-            perror("send_chat: write");
-            break;
+    while (1) {
+        if (send_flag){
+            ssize_t sent = write(sock2, message_mine, CHAT_BUF);
+            if (sent < 0) {
+                perror("send_chat: write");
+                break;
+            }
+            memset(message_mine, 0, CHAT_BUF);
+            send_flag = 0;
         }
     }
     return NULL;
 }
 
 void *recv_chat(void *arg) {
-    char buf[CHAT_BUF];
     ssize_t n;
-    while ((n = read(sock2, buf, sizeof(buf))) > 0) {
-        if (n >= 5 && strncmp(buf, "CHAT:", 5) == 0) {
-            fwrite("[CHAT] ", 1, 7, stderr);
-            fwrite(buf + 5, 1, n - 5, stderr);
+
+    while ((n = read(sock2, message_partner, CHAT_BUF)) > 0) {
+        if(n >= 5 && strncmp(message_partner, "/m_ON", 5) == 0) {
+            muted_partner = 1;
+            continue;
+        } else if(n >= 6 && strncmp(message_partner, "/m_OFF", 6) == 0){
+            muted_partner = 0;
             continue;
         }
-
-        if (fwrite(buf, 1, n, stdout) < n) {
-            perror("recv_chat: fwrite");
-            break;
-        }
-        fflush(stdout);
+        recv_flag = n;
     }
 
     if (n < 0) {

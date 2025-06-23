@@ -9,13 +9,19 @@
 #include "chat_stream.h"
 #include "gtk_GUI.h"
 
+#define CHAT_BUF 2048
 #define SAMPLE_RATE 44100
 #define CHANNELS 1
 #define PRECISION 16
 
 int sock1; // 音声
 int sock2; // チャット
-int muted = 0; // ミュートするかどうかの変数
+int muted_mine = 0; // ミュートするかどうかの変数
+int muted_partner = 0;
+char message_mine[CHAT_BUF] = {0};
+char message_partner[CHAT_BUF];
+int send_flag = 0;
+int recv_flag = 0;
 sox_format_t *in, *out;
 
 int main(int argc, char *argv[]) {
