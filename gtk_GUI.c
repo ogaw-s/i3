@@ -62,10 +62,8 @@ void send_chat_gui(GtkWidget *button, gpointer data) {
     GtkTextMark *mark = gtk_text_buffer_get_insert(buffer);
     gtk_text_view_scroll_to_mark(GTK_TEXT_VIEW(chat_output_view), mark, 0.0, FALSE, 0.0, 0.0);
 }
-// 受信したチャットメッセージをGUIに表示する関数（chat_stream.cのrecv_chatから呼び出すことを想定）
-// この関数は display_GUI() スレッドとは別のスレッドから呼ばれる可能性があるため、
-// スレッドセーフな方法でGUIを更新する必要があります。
-// gdk_threads_add_idle() または gdk_threads_add_timeout() が推奨されます。
+
+
 gboolean append_text_to_chat_view_idle(gpointer user_data) {
     char *message = (char *)user_data;
     GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(chat_output_view));
