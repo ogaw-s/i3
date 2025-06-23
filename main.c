@@ -7,6 +7,7 @@
 #include "audio_stream.h"
 #include "tcp_stream.h"
 #include "chat_stream.h"
+#include "gtk_GUI.h"
 
 #define SAMPLE_RATE 44100
 #define CHANNELS 1

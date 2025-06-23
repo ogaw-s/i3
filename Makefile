@@ -1,10 +1,10 @@
 CC = gcc
-CFLAGS = -Wall -pthread -I/usr/include
-LDFLAGS = -lsox
+CFLAGS = -Wall -pthread -I/usr/include `pkg-config --libs gtk+-3.0`
+LDFLAGS = -lsox `pkg-config --libs gtk+-3.0`
 
 BIN_DIR = bin
 
-SRCS = main.c audio_stream.c tcp_stream.c chat_stream.c audio_effects.c
+SRCS = main.c audio_stream.c tcp_stream.c chat_stream.c audio_effects.c gtk_GUI.c
 OBJS = $(SRCS:%.c=$(BIN_DIR)/%.o)
 TARGET = $(BIN_DIR)/voicechat
 
