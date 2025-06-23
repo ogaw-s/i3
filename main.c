@@ -51,16 +51,18 @@ int main(int argc, char *argv[]) {
     out = sox_open_write("default", &signal, NULL, "alsa", NULL, NULL);
     if (!out) { fprintf(stderr, "Failed to open speaker output\n"); return 1; }
 
-    pthread_t send_audio_thread, recv_audio_thread, send_chat_thread, recv_chat_thread;
+    pthread_t send_audio_thread, recv_audio_thread, send_chat_thread, recv_chat_thread, GUI_thread;
     pthread_create(&send_audio_thread, NULL, send_audio, NULL);
     pthread_create(&recv_audio_thread, NULL, recv_audio, NULL);
     pthread_create(&send_chat_thread, NULL, send_chat, NULL);
     pthread_create(&recv_chat_thread, NULL, recv_chat, NULL);
+    pthread_create(&GUI_thread, NULL, display_GUI, NULL);
 
     pthread_join(send_audio_thread, NULL);
     pthread_join(recv_audio_thread, NULL);
     pthread_join(send_chat_thread, NULL);
     pthread_join(recv_chat_thread, NULL);
+    pthread_join(GUI_thread, NULL);
 
     sox_close(in);
     sox_close(out);
