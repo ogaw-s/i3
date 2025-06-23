@@ -1,5 +1,3 @@
-// gtk_GUI.c
-
 #include <gtk/gtk.h>
 #include <string.h>
 #include <stdio.h>
@@ -35,7 +33,7 @@ void change_mute(GtkWidget *button, gpointer data) {
     }
 
     // 自分のGUIにも状態変化を表示
-    display_received_chat(g_strdup_printf("[システム] %s\n", *flag_muted ? "ミュートしました" : "ミュートを解除しました"));
+    //display_received_chat(g_strdup_printf("[システム] %s\n", *flag_muted ? "ミュートしました" : "ミュートを解除しました"));
 }
 
 void send_chat_gui(GtkWidget *button, gpointer data) {
@@ -54,6 +52,7 @@ void send_chat_gui(GtkWidget *button, gpointer data) {
 
     gtk_entry_set_text(GTK_ENTRY(chat_entry), "");
 
+    //自分のチャットを表示
     GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(chat_output_view));
     GtkTextIter end_iter;
     gtk_text_buffer_get_end_iter(buffer, &end_iter);
@@ -87,47 +86,63 @@ void display_received_chat(const char *message) {
 
 
 void *display_GUI() {
+    // GTK+ライブラリを初期化
     gtk_init(NULL, NULL);
 
+    // メインウィンドウを作成し、設定
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), "Voice Chat GUI");
     gtk_container_set_border_width(GTK_CONTAINER(window), 10);
     gtk_window_set_default_size(GTK_WINDOW(window), 600, 400);
 
+    // ウィンドウが閉じられたらGTK+メインループを終了
     g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
+    // UI要素を縦に並べるメインボックスを作成
     GtkWidget *main_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
     gtk_container_add(GTK_CONTAINER(window), main_vbox);
 
+    // ミュートボタンを作成し、メインボックスに追加。クリックでmute状態を切り替え
     GtkWidget *mute_button = gtk_button_new_with_label("保留ボタン");
     gtk_box_pack_start(GTK_BOX(main_vbox), mute_button, FALSE, FALSE, 0);
     g_signal_connect(G_OBJECT(mute_button), "clicked", G_CALLBACK(change_mute), &muted);
 
+    // チャット履歴表示用のテキストビューを作成し、編集不可に設定
     chat_output_view = gtk_text_view_new();
     gtk_text_view_set_editable(GTK_TEXT_VIEW(chat_output_view), FALSE);
     gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(chat_output_view), FALSE);
 
+    // テキストビューにスクロール機能を追加
     GtkWidget *scrolled_window = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
     gtk_container_add(GTK_CONTAINER(scrolled_window), chat_output_view);
+    // スクロールウィンドウをメインボックスに拡大して配置
     gtk_box_pack_start(GTK_BOX(main_vbox), scrolled_window, TRUE, TRUE, 0);
 
+    // チャット入力欄と送信ボタンを横に並べるボックスを作成
     GtkWidget *chat_input_hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
     gtk_box_pack_start(GTK_BOX(main_vbox), chat_input_hbox, FALSE, FALSE, 0);
 
+    // チャット入力欄を作成し、ヒントテキストを設定
     chat_entry = gtk_entry_new();
     gtk_entry_set_placeholder_text(GTK_ENTRY(chat_entry), "メッセージを入力...");
+    // 入力欄を水平ボックスに横いっぱいに配置
     gtk_box_pack_start(GTK_BOX(chat_input_hbox), chat_entry, TRUE, TRUE, 0);
 
+    // 送信ボタンを作成
     GtkWidget *send_button = gtk_button_new_with_label("送信");
+    // 送信ボタンを水平ボックスに追加
     gtk_box_pack_start(GTK_BOX(chat_input_hbox), send_button, FALSE, FALSE, 0);
 
+    // 送信ボタンクリック時と入力欄でEnterキー押下時にチャットを送信
     g_signal_connect(G_OBJECT(send_button), "clicked", G_CALLBACK(send_chat_gui), NULL);
     g_signal_connect(G_OBJECT(chat_entry), "activate", G_CALLBACK(send_chat_gui), NULL);
 
+    // 全てのウィジェットを表示
     gtk_widget_show_all(window);
 
+    // GTK+メインイベントループを開始し、GUIを動作させる
     gtk_main();
 
     return NULL;
