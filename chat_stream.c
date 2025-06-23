@@ -29,7 +29,7 @@ void *send_chat(void *arg)
                      muted ? "相手がミュートしました"
                            : "相手がミュートを解除しました");
         }else if (strcmp(msg, "/yeah") == 0){
-            send_audio_file("audiofile/yeah.raw");
+            send_audio_file("audiofiles/yeah.wav");
         } else {
             snprintf(buf, sizeof(buf), "CHAT:%s\n", msg);
         }
