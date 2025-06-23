@@ -12,8 +12,8 @@
 #define CHANNELS 1
 #define PRECISION 16
 
-int sock;
-int sock1;
+int sock1; // 音声
+int sock2; // チャット
 int muted = 0; // ミュートするかどうかの変数
 sox_format_t *in, *out;
 
@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
     sox_close(in);
     sox_close(out);
     sox_quit();
-    close(sock);
     close(sock1);
+    close(sock2);
     return 0;
 }
