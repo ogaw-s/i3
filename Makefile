@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -pthread -I/usr/include `pkg-config --libs gtk+-3.0`
+CFLAGS = -Wall -pthread `pkg-config --cflags gtk+-3.0`
 LDFLAGS = -lsox `pkg-config --libs gtk+-3.0`
 
 BIN_DIR = bin
