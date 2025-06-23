@@ -19,12 +19,15 @@ void *display_GUI() {
 
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
-    
+
     g_signal_connect(G_OBJECT(window), "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
 
     GtkWidget *button1 = gtk_button_new_with_label("保留ボタン");
+
+    GtkWidget *image = gtk_image_new_from_file("button.jpg");
+    gtk_button_set_image(GTK_BUTTON(button1), image);
     
     // GtkWidget *button2 = gtk_button_new_with_label("ボタン2");
     // GtkWidget *button3 = gtk_button_new_with_label("ボタン3");
