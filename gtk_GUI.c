@@ -38,9 +38,6 @@ void send_chat_gui(GtkWidget *button, gpointer data) {
         muted = !muted; // グローバル変数 muted を切り替える
         snprintf(buf, sizeof(buf), "CHAT:%s\n",
                  muted ? "相手がミュートしました" : "相手がミュートを解除しました");
-        // GUI上のミュートボタンのラベルも更新したい場合は、ボタンへの参照を渡す必要がある
-        // または change_mute 関数を直接呼ぶ
-        // 例えば、g_signal_emit_by_name(button_mute_ref, "clicked"); のように
     } else {
         snprintf(buf, sizeof(buf), "CHAT:%s\n", msg_text);
     }
@@ -58,10 +55,13 @@ void send_chat_gui(GtkWidget *button, gpointer data) {
     GtkTextIter end_iter;
     gtk_text_buffer_get_end_iter(buffer, &end_iter);
     gtk_text_buffer_insert(buffer, &end_iter, "[自分] ", -1);
-    gtk_text_buffer_insert(buffer, &end_iter, msg_text, -1);
+    gtk_text_buffer_insert(buffer, &end_iter, msg_text, -1); // ★ここが重要★
     gtk_text_buffer_insert(buffer, &end_iter, "\n", -1);
-}
 
+    // テキストビューを最新の行までスクロール
+    GtkTextMark *mark = gtk_text_buffer_get_insert(buffer);
+    gtk_text_view_scroll_to_mark(GTK_TEXT_VIEW(chat_output_view), mark, 0.0, FALSE, 0.0, 0.0);
+}
 // 受信したチャットメッセージをGUIに表示する関数（chat_stream.cのrecv_chatから呼び出すことを想定）
 // この関数は display_GUI() スレッドとは別のスレッドから呼ばれる可能性があるため、
 // スレッドセーフな方法でGUIを更新する必要があります。
