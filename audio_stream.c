@@ -10,7 +10,7 @@
 
 #define BUFFER_SAMPLE_SIZE 2048
 
-extern int sock;
+extern int sock1;
 extern sox_format_t *in, *out;
 extern int muted;
 
@@ -33,7 +33,7 @@ void *send_audio(void *arg) {
                 send_buf[i] = sample;
             }
             ssize_t bytes = samples * sizeof(int16_t);
-            if (send(sock, send_buf, bytes, 0) <= 0) {
+            if (send(sock1, send_buf, bytes, 0) <= 0) {
                 break;
             }
         }
@@ -55,7 +55,7 @@ void *recv_audio(void *arg) {
     }
 
     while (1) {
-        n = recv(sock, recv_buf, BUFFER_SAMPLE_SIZE * sizeof(int16_t), 0);
+        n = recv(sock1, recv_buf, BUFFER_SAMPLE_SIZE * sizeof(int16_t), 0);
         if (n <= 0) break;
 
         size_t samples = n / sizeof(int16_t);

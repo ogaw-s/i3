@@ -17,4 +17,4 @@ void apply_gate(sox_sample_t *buf, size_t samples, sox_sample_t threshold) {
             buf[i] = 0;
         }
     }
-}
+
