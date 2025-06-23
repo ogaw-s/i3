@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sox.h>
+#include <sys/socket.h>
 #include <pthread.h>
 #include "audio_stream.h"
 #include "tcp_stream.h"
@@ -31,13 +32,24 @@ int main(int argc, char *argv[]) {
 
     sock1 = setup_socket(is_server, ip, port);
     if (sock1 < 0) return 1;
+
+    //タイムアウトの設定
+    struct timeval tv;
+    tv.tv_sec = 0;
+    tv.tv_usec = 20000; // 20,000マイクロ秒 = 20ミリ秒
+    if (setsockopt(sock1, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv) < 0) {
+        perror("setsockopt(SO_RCVTIMEO) failed");
+        close(sock1);
+        return 1;
+    }
+
     // 少し待ってから次の接続を試みる
     usleep(200000); // 0.2秒待つ（調整可能）
     sock2 = setup_socket(is_server, ip, port + 1);
     if (sock2 < 0) return 1;
 
     sox_init();
-
+    sox_globals.bufsiz = 32768;
     sox_signalinfo_t signal = {
         .rate = SAMPLE_RATE,
         .channels = CHANNELS,

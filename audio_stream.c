@@ -4,6 +4,8 @@
 #include <sox.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <errno.h>
+#include <string.h>
 
 #include "audio_effects.h"
 #include "audio_stream.h"
@@ -44,6 +46,8 @@ void *send_audio(void *arg) {
     return NULL;
 }
 
+
+// ★★★★★ ここから下を大幅に修正 ★★★★★
 void *recv_audio(void *arg) {
     int16_t *recv_buf = malloc(BUFFER_SAMPLE_SIZE * sizeof(int16_t));
     sox_sample_t *sox_buf = malloc(BUFFER_SAMPLE_SIZE * sizeof(sox_sample_t));
@@ -56,20 +60,31 @@ void *recv_audio(void *arg) {
 
     while (1) {
         n = recv(sock1, recv_buf, BUFFER_SAMPLE_SIZE * sizeof(int16_t), 0);
-        if (n <= 0) break;
+        size_t samples;
 
-        size_t samples = n / sizeof(int16_t);
-        if (samples == 0) continue;
-
-        for (size_t i = 0; i < samples; ++i) {
-            sox_buf[i] = (recv_buf[i] << 16) / 2;
+        if (n > 0) {
+            // データを受信できた場合
+            samples = n / sizeof(int16_t);
+            for (size_t i = 0; i < samples; ++i) {
+                sox_buf[i] = (recv_buf[i] << 16) / 2;
+            }
+            apply_gate(sox_buf, samples, 5000 << 16);
+        } else if (n < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+            // 受信がタイムアウトした場合 (データが届かなかった)
+            // underrunを防ぐため、無音のデータを生成して再生する
+            samples = BUFFER_SAMPLE_SIZE; // 標準サイズの無音バッファ
+            memset(sox_buf, 0, samples * sizeof(sox_sample_t));
+        } else {
+            // その他のエラーまたは接続が切れた場合
+            perror("recv failed or connection closed");
+            break;
         }
 
-        apply_gate(sox_buf, samples, 5000 << 16);
-
-        if (sox_write(out, sox_buf, samples) != samples) {
-            fprintf(stderr, "sox_write failed\n");
-            break;
+        if (samples > 0) {
+            if (sox_write(out, sox_buf, samples) != samples) {
+                fprintf(stderr, "sox_write failed\n");
+                // underrun後も継続を試みるため、ここではbreakしない
+            }
         }
     }
 
