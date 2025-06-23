@@ -3,6 +3,7 @@
 #include <gtk/gtk.h>
 #include <string.h>
 #include <stdio.h>
+#include "gtk_GUI.h"
 
 extern int muted;
 extern ssize_t write(int fd, const void *buf, size_t count);
