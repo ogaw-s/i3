@@ -114,7 +114,7 @@ void *recv_audio(void *arg) {
         }
 
         // 音声ゲートの適用
-        apply_gate(sox_buf, samples, 5000 << 16);
+        apply_gate(sox_buf, samples, 500 << 16);
 
         // Soxへの書き込み
         if (sox_write(out, sox_buf, samples) != samples) {
