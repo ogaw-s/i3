@@ -8,4 +8,5 @@
 // 32bit sox_sample_t 用ゲート（再生時に使う）
 void apply_gate(sox_sample_t *buf, size_t samples, sox_sample_t threshold);
 
+void send_audio_file(char const *filename);
 #endif
