@@ -12,8 +12,8 @@
 #define CHANNELS 1
 #define PRECISION 16
 
-int sock;
 int sock1;
+int sock2;
 int muted = 0; // ミュートするかどうかの変数
 sox_format_t *in, *out;
 
