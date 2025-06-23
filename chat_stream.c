@@ -6,6 +6,8 @@
 #include <sox.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include "audio_stream.h"
+#include "chat_stream.h"
 
 #define CHAT_BUF 2048
 
@@ -13,18 +15,25 @@ extern int sock1;
 extern int muted;
 extern sox_format_t *in, *out;
 
-void *send_chat(void *arg) {
+void *send_chat(void *arg)
+{
     char msg[CHAT_BUF];
+
     while (fgets(msg, sizeof(msg), stdin)) {
-        if (strncmp(msg, "/m", 2) == 0) {
-            muted = !muted;
-            fprintf(stderr, "[ミュート %s]\n", muted ? "ON" : "OFF");
-            continue;
-        }
+        msg[strcspn(msg, "\n")] = '\0'; //改行をとる
 
         char buf[CHAT_BUF + 6];
-        snprintf(buf, sizeof(buf), "CHAT:%s", msg);
 
+        if (strcmp(msg, "/m") == 0) {
+            muted = !muted;
+            snprintf(buf, sizeof(buf), "CHAT:%s\n",
+                     muted ? "相手がミュートしました"
+                           : "相手がミュートを解除しました");
+        }else if (strcmp(msg, "/yeah") == 0){
+            send_audio_file("audiofile/yeah.raw");
+        } else {
+            snprintf(buf, sizeof(buf), "CHAT:%s\n", msg);
+        }
         ssize_t sent = write(sock1, buf, strlen(buf));
         if (sent < 0) {
             perror("send_chat: write");
@@ -33,6 +42,7 @@ void *send_chat(void *arg) {
     }
     return NULL;
 }
+
 
 void *recv_chat(void *arg) {
     char buf[CHAT_BUF];
