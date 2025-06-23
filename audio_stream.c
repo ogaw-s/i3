@@ -9,7 +9,7 @@
 #include "audio_effects.h"
 #include "audio_stream.h"
 
-#define BUFFER_SAMPLE_SIZE 2048
+#define BUFFER_SAMPLE_SIZE 8192
 
 extern int sock1;
 extern sox_format_t *in, *out;
