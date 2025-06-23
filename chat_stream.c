@@ -33,7 +33,7 @@ void *send_chat(void *arg)
         } else {
             snprintf(buf, sizeof(buf), "CHAT:%s\n", msg);
         }
-        ssize_t sent = write(sock1, buf, strlen(buf));
+        ssize_t sent = write(sock2, buf, strlen(buf));
 
         if (sent < 0) {
             perror("send_chat: write");
