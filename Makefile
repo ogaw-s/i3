@@ -34,12 +34,12 @@ all: $(TARGET)
 
 # 実行ファイルのビルドルール
 $(TARGET): $(OBJS)
-	@mkdir -p $(BIN_DIR) # binディレクトリが存在しない場合作成
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) # CFLAGSもリンク時に必要になることがあるので含める
+	@mkdir -p $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 # オブジェクトファイルのビルドルール
 $(BIN_DIR)/%.o: %.c
-	@mkdir -p $(BIN_DIR) # binディレクトリが存在しない場合作成
+	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # クリーンルール

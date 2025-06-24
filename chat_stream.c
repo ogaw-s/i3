@@ -3,12 +3,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-// #include <sox.h> // Chat StreamではSoXは通常不要なのでコメントアウトまたは削除
 #include <unistd.h>
 #include <sys/socket.h>
-
-// GUI更新関数を呼び出すためにgtk_GUI.hをインクルード
-#include "gtk_GUI.h" // 必要
+#include "gtk_GUI.h"
 
 #define CHAT_BUF 2048
 
